@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Property Investor Desk Setup — Scroll-Stop Prompts</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Archivo:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    /* ── Reset & Base ── */
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --lime: #C9A84C;
+      --lime-dim: rgba(201, 168, 76, 0.12);
+      --lime-glow: rgba(201, 168, 76, 0.3);
+      --bg: #000000;
+      --surface: rgba(255, 255, 255, 0.03);
+      --surface-hover: rgba(255, 255, 255, 0.06);
+      --border: rgba(255, 255, 255, 0.08);
+      --border-active: rgba(201, 168, 76, 0.4);
+      --text: #e8e8e8;
+      --text-dim: rgba(255, 255, 255, 0.45);
+      --text-faded: rgba(255, 255, 255, 0.15);
+      --radius: 16px;
+      --radius-sm: 10px;
+    }
+
+    html { font-size: 16px; -webkit-font-smoothing: antialiased; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Space Grotesk', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    .bg-grid {
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .bg-orb {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(120px);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .bg-orb-1 {
+      width: 600px; height: 600px;
+      background: rgba(201, 168, 76, 0.04);
+      top: -200px; left: -100px;
+    }
+
+    .bg-orb-2 {
+      width: 500px; height: 500px;
+      background: rgba(201, 168, 76, 0.03);
+      bottom: -150px; right: -100px;
+    }
+
+    .bg-orb-3 {
+      width: 300px; height: 300px;
+      background: rgba(201, 168, 76, 0.03);
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 60px 24px 80px;
+    }
+
+    .header { margin-bottom: 48px; }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      background: var(--lime-dim);
+      border: 1px solid rgba(201, 168, 76, 0.2);
+      border-radius: 100px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      font-weight: 500;
+      color: var(--lime);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 20px;
+    }
+
+    .badge::before {
+      content: '';
+      width: 6px; height: 6px;
+      background: var(--lime);
+      border-radius: 50%;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    .title {
+      font-family: 'Archivo', sans-serif;
+      font-weight: 900;
+      font-size: clamp(2.8rem, 8vw, 4.5rem);
+      line-height: 0.95;
+      letter-spacing: -0.03em;
+      text-transform: uppercase;
+    }
+
+    .title-line2 {
+      color: var(--text-faded);
+    }
+
+    .subtitle {
+      margin-top: 16px;
+      font-size: 0.95rem;
+      color: var(--text-dim);
+      line-height: 1.6;
+      max-width: 500px;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 4px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 4px;
+      margin-bottom: 24px;
+    }
+
+    .tab {
+      flex: 1;
+      padding: 12px 16px;
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: 12px;
+      color: var(--text-dim);
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      text-align: center;
+      position: relative;
+    }
+
+    .tab:hover {
+      color: var(--text);
+      background: var(--surface-hover);
+    }
+
+    .tab.active {
+      background: var(--lime-dim);
+      border-color: var(--border-active);
+      color: var(--lime);
+    }
+
+    .tab .tab-key {
+      display: inline-block;
+      margin-left: 6px;
+      padding: 1px 6px;
+      background: rgba(255,255,255,0.06);
+      border-radius: 4px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem;
+      color: var(--text-dim);
+      vertical-align: middle;
+    }
+
+    .tab.active .tab-key {
+      background: rgba(201, 168, 76, 0.15);
+      color: var(--lime);
+    }
+
+    .tab .tab-full { display: inline; }
+    .tab .tab-short { display: none; }
+
+    @media (max-width: 600px) {
+      .tab .tab-full { display: none; }
+      .tab .tab-short { display: inline; }
+      .tab .tab-key { display: none; }
+    }
+
+    .prompt-panels { position: relative; }
+
+    .prompt-panel {
+      display: none;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .prompt-panel.active { display: block; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      overflow: hidden;
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .card-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      font-weight: 500;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    .copy-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 18px;
+      background: var(--lime);
+      color: var(--bg);
+      border: none;
+      border-radius: 100px;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .copy-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 20px var(--lime-glow);
+    }
+
+    .copy-btn:active { transform: scale(0.97); }
+
+    .copy-btn.copied {
+      background: #E8D48B;
+    }
+
+    .copy-btn svg { width: 14px; height: 14px; }
+
+    .card-body {
+      padding: 24px 20px;
+    }
+
+    .prompt-text {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.82rem;
+      line-height: 1.75;
+      color: var(--text);
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .tips {
+      margin-top: 32px;
+      padding: 20px 24px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+    }
+
+    .tips-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      font-weight: 500;
+      color: var(--lime);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 12px;
+    }
+
+    .tips-text {
+      font-size: 0.85rem;
+      color: var(--text-dim);
+      line-height: 1.7;
+    }
+
+    .footer {
+      margin-top: 48px;
+      text-align: center;
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      opacity: 0.5;
+    }
+
+    #confetti-canvas {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 9999;
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-grid"></div>
+  <div class="bg-orb bg-orb-1"></div>
+  <div class="bg-orb bg-orb-2"></div>
+  <div class="bg-orb bg-orb-3"></div>
+  <canvas id="confetti-canvas"></canvas>
+
+  <div class="container">
+    <header class="header">
+      <div class="badge">Scroll-Stop Prompts</div>
+      <h1 class="title">
+        <span class="title-line1">INVESTOR</span><br>
+        <span class="title-line2">DESK SETUP</span>
+      </h1>
+      <p class="subtitle">
+        Three coordinated prompts — assembled shot, deconstructed view, and video transition.
+        Copy each into your AI tools to create scroll-stopping content.
+      </p>
+    </header>
+
+    <div class="tabs" role="tablist">
+      <button class="tab active" role="tab" data-tab="a" aria-selected="true">
+        <span class="tab-full">Assembled Shot</span>
+        <span class="tab-short">Assembled</span>
+        <span class="tab-key">1</span>
+      </button>
+      <button class="tab" role="tab" data-tab="b" aria-selected="false">
+        <span class="tab-full">Deconstructed View</span>
+        <span class="tab-short">Deconstructed</span>
+        <span class="tab-key">2</span>
+      </button>
+      <button class="tab" role="tab" data-tab="c" aria-selected="false">
+        <span class="tab-full">Video Transition</span>
+        <span class="tab-short">Video</span>
+        <span class="tab-key">3</span>
+      </button>
+    </div>
+
+    <div class="prompt-panels">
+      <!-- Panel A -->
+      <div class="prompt-panel active" data-panel="a">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-label">Prompt A &mdash; Assembled Shot</span>
+            <button class="copy-btn" data-copy="a">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+              </svg>
+              <span>Copy</span>
+            </button>
+          </div>
+          <div class="card-body">
+            <div class="prompt-text" id="prompt-a">Professional overhead product photography of a premium property investor's desk setup, shot from a top-down bird's-eye angle. Clean black background (#000000), soft studio lighting with subtle, even shadows beneath each object.
+
+The desk arrangement is meticulously styled and includes: a sleek silver MacBook Pro (open, screen displaying property analytics dashboards with green charts and postcode heat maps), a black leather portfolio folder (open, revealing printed property floor plans and a signed tenancy agreement), a premium matte black calculator with gold accents, a set of brass house keys on a minimalist leather keyring, a black Montblanc-style fountain pen resting on a property contract, a white ceramic coffee cup (black coffee, perfectly still surface), a small stack of crisp British banknotes (£50 notes, neatly fanned), a miniature white architectural house model, a smartphone showing a property listing app, and a pair of premium reading glasses with thin gold frames.
+
+Every item is arranged in a deliberate, editorial flat-lay composition with balanced negative space between objects. All items sit directly on the pure black surface — no desk visible, just black. Materials are hyper-detailed: brushed aluminium on the laptop, grain texture on the leather portfolio, crisp ink on the printed floor plans, glossy surface on the banknotes.
+
+Photorealistic rendering, 16:9 aspect ratio, editorial product catalog quality. Tack-sharp focus across every object. Minimal, elegant, Apple-meets-Architectural-Digest styling. No text overlays, no branding, no clutter.
+
+Shot on Phase One IQ4 150MP, 80mm lens, f/11 for maximum depth of field, overhead rig with large diffused softbox directly above. Ultra-sharp detail, 8K quality downsampled to 4K.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Panel B -->
+      <div class="prompt-panel" data-panel="b">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-label">Prompt B &mdash; Deconstructed View</span>
+            <button class="copy-btn" data-copy="b">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+              </svg>
+              <span>Copy</span>
+            </button>
+          </div>
+          <div class="card-body">
+            <div class="prompt-text" id="prompt-b">Professional exploded-view product photography of a premium property investor's desk setup, every item deconstructed into its individual components, all floating in space against a clean black background (#000000).
+
+Every object from the assembled desk has been taken apart and each piece floats independently:
+
+LAPTOP — Aluminium unibody lid separated from display panel, keyboard deck floating above logic board with visible chips and copper heat pipes, battery cells fanned out, trackpad module with haptic engine, individual keycaps scattered in grid formation, hinge mechanism, fan assembly, SSD module, speaker grilles, rubber feet and tiny screws arranged neatly
+
+LEATHER PORTFOLIO — Outer leather cover separated from inner lining, stitching thread pulled and coiled, brass corner protectors, the floor plans and tenancy agreement pages floating individually, each page slightly rotated to show printed content
+
+CALCULATOR — Front faceplate with button grid separated from circuit board, LCD display ribbon, battery compartment cover, individual rubber button pads, back casing with gold accent trim
+
+HOUSE KEYS — Individual brass keys separated from the split ring, leather keyring tag deconstructed into leather piece and metal clasp, each key showing unique cut patterns
+
+FOUNTAIN PEN — Cap separated from barrel, ink cartridge floating, nib assembly with gold tip visible, converter mechanism, clip detached from cap
+
+COFFEE CUP — Ceramic cup separated from handle (clean break), saucer floating below, coffee liquid frozen mid-splash as a floating disc of dark liquid
+
+BANKNOTES — Individual £50 notes fanned and floating at different heights, each slightly rotated to catch light on holographic security strips
+
+HOUSE MODEL — Miniature roof lifted from walls, walls separated from base, tiny windows and door floating free
+
+SMARTPHONE — Glass screen panel, OLED display, logic board, camera module, battery, frame chassis all separated
+
+READING GLASSES — Lenses popped from frames, temple arms detached, nose pads and tiny screws floating, hinge pins visible
+
+All components maintain their general spatial grouping — laptop pieces cluster together, portfolio pieces cluster nearby, etc. The overall composition preserves the original flat-lay arrangement but with vertical separation between layers. Each piece floats with even spacing, pristine and detailed.
+
+Soft studio lighting with subtle shadows on each floating piece. You can see every texture: leather grain, circuit board traces, paper fibres, metal machining marks, glass reflections.
+
+Photorealistic rendering, 16:9 aspect ratio, technical illustration meets editorial photography. Shot on Phase One IQ4 150MP, focus-stacked for sharpness across all floating elements. Same overhead lighting setup as the assembled shot for visual continuity. Pure black #000000 background, no gradient, no vignette.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Panel C -->
+      <div class="prompt-panel" data-panel="c">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-label">Prompt C &mdash; Video Transition</span>
+            <button class="copy-btn" data-copy="c">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+              </svg>
+              <span>Copy</span>
+            </button>
+          </div>
+          <div class="card-body">
+            <div class="prompt-text" id="prompt-c">START FRAME: A premium property investor's desk setup arranged in a top-down flat-lay on a black background — MacBook Pro showing analytics, leather portfolio with floor plans, calculator, house keys, fountain pen on a contract, coffee cup, British banknotes, miniature house model, smartphone, and reading glasses. Everything pristine, editorial styling, soft studio lighting.
+
+END FRAME: The same desk setup elegantly deconstructed — every single object exploded into its individual components, all floating in space at varying heights above the black surface. Laptop split into lid, screen, keyboard, logic board, battery. Portfolio opened into leather, pages, stitching. Calculator, pen, keys, glasses all disassembled. Coffee frozen mid-splash. Banknotes fanned and floating. Hundreds of tiny pieces hovering in perfect editorial arrangement.
+
+TRANSITION: Smooth, satisfying simultaneous deconstruction animation. The desk setup begins complete and still, shot from directly overhead. After a brief pause (0.5s), all objects begin to deconstruct at once in a choreographed sequence:
+
+The laptop lid lifts first, revealing the keyboard deck, which then separates from the logic board beneath. Individual keycaps pop upward in a ripple pattern. The leather portfolio unfolds and its pages lift and fan outward. The calculator faceplate rises as buttons separate into a floating grid. The fountain pen unscrews — cap drifts left, barrel right, nib assembly floats centre. House keys slide apart from the ring. Coffee cup handle detaches as a disc of liquid lifts from the cup. Banknotes fan upward like a deck of cards being shuffled in slow motion. The miniature house model's roof lifts off. Glasses lenses pop free from their frames.
+
+Each piece moves along clean, deliberate paths with eased motion (slow-in, slow-out). Slight rotations on individual components reveal their 3D form and hidden details. The separation cascades over 2.5-3 seconds — not all at once, but in a satisfying wave from the centre of the composition outward. Final floating arrangement holds for 1.5 seconds.
+
+STYLE: Photorealistic, pure black background throughout, consistent soft overhead studio lighting. No camera movement — locked-off overhead shot. The only motion is the objects deconstructing. Satisfying, ASMR-like precision. Think Apple product teardown meets luxury editorial flat-lay animation.
+
+DURATION: 5-6 seconds total.
+ASPECT RATIO: 16:9
+QUALITY: High fidelity, smooth 24fps or higher, no artifacts.
+
+VARIATIONS:
+— Reverse version: Start with hundreds of floating components, all pieces assemble into the perfect investor desk setup (powerful "building your toolkit" narrative)
+— Loop version: Assemble → pause → deconstruct → pause → repeat
+— Slow-mo version: Same animation but 10-12 seconds, ultra-smooth, every tiny screw and keycap visible in motion</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tips">
+      <div class="tips-title">Recommended Settings</div>
+      <div class="tips-text">
+        <strong>Image generator:</strong> 16:9 aspect ratio, highest quality/resolution available<br>
+        <strong>Video model:</strong> 16:9, 5-6 seconds, highest quality<br>
+        <strong>Tip:</strong> Generate the assembled shot first, then reference it when generating
+        the deconstructed version for visual consistency (same objects, same lighting, same colours). The flat-lay angle works especially well for this object — keep it overhead for both shots.
+      </div>
+    </div>
+
+    <div class="footer">Built with Scroll-Stop Prompter</div>
+  </div>
+
+  <script>
+    const tabs = document.querySelectorAll('.tab');
+    const panels = document.querySelectorAll('.prompt-panel');
+
+    function switchTab(id) {
+      tabs.forEach(t => { t.classList.remove('active'); t.setAttribute('aria-selected', 'false'); });
+      panels.forEach(p => p.classList.remove('active'));
+      const tab = document.querySelector(`.tab[data-tab="${id}"]`);
+      const panel = document.querySelector(`.prompt-panel[data-panel="${id}"]`);
+      if (tab) { tab.classList.add('active'); tab.setAttribute('aria-selected', 'true'); }
+      if (panel) panel.classList.add('active');
+    }
+
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => switchTab(tab.dataset.tab));
+    });
+
+    document.addEventListener('keydown', e => {
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+      if (e.key === '1') switchTab('a');
+      if (e.key === '2') switchTab('b');
+      if (e.key === '3') switchTab('c');
+    });
+
+    document.querySelectorAll('.copy-btn').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const id = btn.dataset.copy;
+        const text = document.getElementById(`prompt-${id}`).innerText;
+        try {
+          await navigator.clipboard.writeText(text);
+          const label = btn.querySelector('span');
+          const orig = label.textContent;
+          label.textContent = 'Copied!';
+          btn.classList.add('copied');
+          fireConfetti(btn);
+          setTimeout(() => { label.textContent = orig; btn.classList.remove('copied'); }, 2000);
+        } catch { /* fallback */ }
+      });
+    });
+
+    const canvas = document.getElementById('confetti-canvas');
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+    let animating = false;
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    function fireConfetti(origin) {
+      const rect = origin.getBoundingClientRect();
+      const cx = rect.left + rect.width / 2;
+      const cy = rect.top + rect.height / 2;
+      const colors = ['#C9A84C', '#E8D48B', '#A68A3E', '#D4B85A', '#F5E6A3', '#8B7332', '#ffffff'];
+
+      for (let i = 0; i < 60; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const speed = 4 + Math.random() * 8;
+        particles.push({
+          x: cx, y: cy,
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed - 4,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          size: 4 + Math.random() * 4,
+          life: 1,
+          decay: 0.015 + Math.random() * 0.015,
+          rotation: Math.random() * 360,
+          rotSpeed: (Math.random() - 0.5) * 12,
+          shape: Math.random() > 0.5 ? 'rect' : 'circle'
+        });
+      }
+      if (!animating) { animating = true; animateConfetti(); }
+    }
+
+    function animateConfetti() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      particles.forEach((p, i) => {
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vy += 0.18;
+        p.vx *= 0.99;
+        p.life -= p.decay;
+        p.rotation += p.rotSpeed;
+
+        if (p.life <= 0) { particles.splice(i, 1); return; }
+
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate((p.rotation * Math.PI) / 180);
+        ctx.globalAlpha = p.life;
+        ctx.fillStyle = p.color;
+        if (p.shape === 'rect') {
+          ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.6);
+        } else {
+          ctx.beginPath();
+          ctx.arc(0, 0, p.size / 2, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.restore();
+      });
+
+      if (particles.length > 0) {
+        requestAnimationFrame(animateConfetti);
+      } else {
+        animating = false;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+      }
+    }
+  </script>
+</body>
+</html>

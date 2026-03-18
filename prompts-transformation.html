@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Education to Wealth Transformation — Scroll-Stop Prompts</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Archivo:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --lime: #C9A84C;
+      --lime-dim: rgba(201, 168, 76, 0.12);
+      --lime-glow: rgba(201, 168, 76, 0.3);
+      --bg: #000000;
+      --surface: rgba(255, 255, 255, 0.03);
+      --surface-hover: rgba(255, 255, 255, 0.06);
+      --border: rgba(255, 255, 255, 0.08);
+      --border-active: rgba(201, 168, 76, 0.4);
+      --text: #e8e8e8;
+      --text-dim: rgba(255, 255, 255, 0.45);
+      --text-faded: rgba(255, 255, 255, 0.15);
+      --radius: 16px;
+      --radius-sm: 10px;
+    }
+
+    html { font-size: 16px; -webkit-font-smoothing: antialiased; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Space Grotesk', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    .bg-grid {
+      position: fixed; inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none; z-index: 0;
+    }
+
+    .bg-orb { position: fixed; border-radius: 50%; filter: blur(120px); pointer-events: none; z-index: 0; }
+    .bg-orb-1 { width: 600px; height: 600px; background: rgba(201, 168, 76, 0.04); top: -200px; left: -100px; }
+    .bg-orb-2 { width: 500px; height: 500px; background: rgba(201, 168, 76, 0.03); bottom: -150px; right: -100px; }
+    .bg-orb-3 { width: 300px; height: 300px; background: rgba(201, 168, 76, 0.03); top: 50%; left: 50%; transform: translate(-50%, -50%); }
+
+    .container { position: relative; z-index: 1; max-width: 820px; margin: 0 auto; padding: 60px 24px 80px; }
+    .header { margin-bottom: 48px; }
+
+    .badge {
+      display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px;
+      background: var(--lime-dim); border: 1px solid rgba(201, 168, 76, 0.2);
+      border-radius: 100px; font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem; font-weight: 500; color: var(--lime);
+      text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 20px;
+    }
+    .badge::before { content: ''; width: 6px; height: 6px; background: var(--lime); border-radius: 50%; animation: pulse 2s ease-in-out infinite; }
+
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+    .title { font-family: 'Archivo', sans-serif; font-weight: 900; font-size: clamp(2.8rem, 8vw, 4.5rem); line-height: 0.95; letter-spacing: -0.03em; text-transform: uppercase; }
+    .title-line2 { color: var(--text-faded); }
+    .subtitle { margin-top: 16px; font-size: 0.95rem; color: var(--text-dim); line-height: 1.6; max-width: 500px; }
+
+    .tabs { display: flex; gap: 4px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 4px; margin-bottom: 24px; }
+    .tab {
+      flex: 1; padding: 12px 16px; background: transparent; border: 1px solid transparent;
+      border-radius: 12px; color: var(--text-dim); font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.85rem; font-weight: 500; cursor: pointer; transition: all 0.25s ease;
+      text-align: center; position: relative;
+    }
+    .tab:hover { color: var(--text); background: var(--surface-hover); }
+    .tab.active { background: var(--lime-dim); border-color: var(--border-active); color: var(--lime); }
+    .tab .tab-key { display: inline-block; margin-left: 6px; padding: 1px 6px; background: rgba(255,255,255,0.06); border-radius: 4px; font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; color: var(--text-dim); vertical-align: middle; }
+    .tab.active .tab-key { background: rgba(201, 168, 76, 0.15); color: var(--lime); }
+    .tab .tab-full { display: inline; } .tab .tab-short { display: none; }
+    @media (max-width: 600px) { .tab .tab-full { display: none; } .tab .tab-short { display: inline; } .tab .tab-key { display: none; } }
+
+    .prompt-panels { position: relative; }
+    .prompt-panel { display: none; animation: fadeIn 0.3s ease; }
+    .prompt-panel.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); overflow: hidden; }
+    .card-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; border-bottom: 1px solid var(--border); }
+    .card-label { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; font-weight: 500; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.1em; }
+
+    .copy-btn {
+      display: inline-flex; align-items: center; gap: 8px; padding: 8px 18px;
+      background: var(--lime); color: var(--bg); border: none; border-radius: 100px;
+      font-family: 'Space Grotesk', sans-serif; font-size: 0.8rem; font-weight: 600;
+      cursor: pointer; transition: all 0.2s ease;
+    }
+    .copy-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 20px var(--lime-glow); }
+    .copy-btn:active { transform: scale(0.97); }
+    .copy-btn.copied { background: #E8D48B; }
+    .copy-btn svg { width: 14px; height: 14px; }
+
+    .card-body { padding: 24px 20px; }
+    .prompt-text { font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; line-height: 1.75; color: var(--text); white-space: pre-wrap; word-break: break-word; }
+
+    .tips { margin-top: 32px; padding: 20px 24px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); }
+    .tips-title { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; font-weight: 500; color: var(--lime); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 12px; }
+    .tips-text { font-size: 0.85rem; color: var(--text-dim); line-height: 1.7; }
+    .footer { margin-top: 48px; text-align: center; font-size: 0.75rem; color: var(--text-dim); opacity: 0.5; }
+    #confetti-canvas { position: fixed; inset: 0; pointer-events: none; z-index: 9999; }
+  </style>
+</head>
+<body>
+  <div class="bg-grid"></div>
+  <div class="bg-orb bg-orb-1"></div>
+  <div class="bg-orb bg-orb-2"></div>
+  <div class="bg-orb bg-orb-3"></div>
+  <canvas id="confetti-canvas"></canvas>
+
+  <div class="container">
+    <header class="header">
+      <div class="badge">Scroll-Stop Prompts</div>
+      <h1 class="title">
+        <span class="title-line1">KNOWLEDGE</span><br>
+        <span class="title-line2">INTO WEALTH</span>
+      </h1>
+      <p class="subtitle">
+        Three coordinated prompts — the education setup, the money explosion, and the transformation video.
+        Copy each into your AI tools to create scroll-stopping content.
+      </p>
+    </header>
+
+    <div class="tabs" role="tablist">
+      <button class="tab active" role="tab" data-tab="a" aria-selected="true">
+        <span class="tab-full">Education Shot</span>
+        <span class="tab-short">Education</span>
+        <span class="tab-key">1</span>
+      </button>
+      <button class="tab" role="tab" data-tab="b" aria-selected="false">
+        <span class="tab-full">Wealth Explosion</span>
+        <span class="tab-short">Explosion</span>
+        <span class="tab-key">2</span>
+      </button>
+      <button class="tab" role="tab" data-tab="c" aria-selected="false">
+        <span class="tab-full">Video Transition</span>
+        <span class="tab-short">Video</span>
+        <span class="tab-key">3</span>
+      </button>
+    </div>
+
+    <div class="prompt-panels">
+      <!-- Panel A -->
+      <div class="prompt-panel active" data-panel="a">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-label">Prompt A &mdash; Education Shot</span>
+            <button class="copy-btn" data-copy="a">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              <span>Copy</span>
+            </button>
+          </div>
+          <div class="card-body">
+            <div class="prompt-text" id="prompt-a">Professional product photography of a property education composition centered in frame, shot from a 3/4 elevated angle. Clean black background (#000000), soft studio lighting with subtle shadows beneath the objects.
+
+The composition features a curated stack of premium hardcover property investment books — thick spines, matte black and dark navy covers with minimal gold foil lettering (titles like "Property Wealth", "The Investor's Blueprint", "Portfolio Mastery"). The books are stacked at a slight angle, 5-6 books total, with the top book open to a page showing printed property floor plans and investment calculations.
+
+Sitting on top of the open book is a pristine white miniature architectural house model — a modern luxury villa with clean geometric lines, floor-to-ceiling glass panels, and a flat roof. The house model is small enough to sit in your palm, perfectly detailed.
+
+Beside the book stack: a matte black tablet (screen showing green property analytics charts and a postcode heat map), a brass house key on a minimal leather keyring, and a sleek black fountain pen. Everything is arranged with deliberate editorial spacing.
+
+Materials are ultra-detailed: the matte texture of the book covers, gold foil catching the light, crisp printed pages, smooth white plaster on the house model, reflective glass on the tablet screen, warm brass on the key.
+
+Photorealistic rendering, 16:9 aspect ratio, product catalog quality. Tack-sharp focus across every object. Minimal, elegant, Apple-meets-luxury-education styling. No text overlays, no branding clutter.
+
+Shot on Phase One IQ4 150MP, 120mm macro lens, f/8, studio strobe lighting with large softbox above and white bounce cards on sides. Ultra-sharp detail, 8K quality downsampled to 4K.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Panel B -->
+      <div class="prompt-panel" data-panel="b">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-label">Prompt B &mdash; Wealth Explosion</span>
+            <button class="copy-btn" data-copy="b">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              <span>Copy</span>
+            </button>
+          </div>
+          <div class="card-body">
+            <div class="prompt-text" id="prompt-b">Professional high-speed photography of a dramatic wealth explosion, captured in a freeze-frame moment against a clean black background (#000000). This is the "after" — education and property knowledge has transformed into pure wealth.
+
+At the centre of the frame, the remnants of the property books and house model are mid-shatter — pages ripping apart and transforming into currency. The composition is an outward explosion of money and wealth symbols erupting from where the education materials once sat:
+
+— Hundreds of crisp British £50 and £20 banknotes erupting outward in every direction, some still flat and sharp, others curling and twisting mid-flight, holographic security strips catching studio light
+— Gold bars (small 1oz bullion bars) tumbling and spinning, their polished surfaces reflecting warm light, scattered at varying distances from the centre
+— Gold coins (Britannias and Sovereigns) flying outward in arcs, some stacked mid-tumble, edges glinting
+— A shower of smaller gold coins raining down from above like confetti
+— Property deeds and contracts with visible "SOLD" stamps and signatures, pages fluttering outward
+— Several brass house keys flying outward, each trailing a leather keyring
+— Fragments of the original book pages mid-transformation — the left half still showing printed text, the right half morphing into the texture of a £50 note (seamless blend)
+— The miniature house model cracking open at the seams, golden light pouring from inside, gold coins spilling from the cracks
+— A few green upward-trending chart fragments (torn from the tablet screen) floating among the money
+
+The explosion radiates outward from a central point. Every element is frozen in sharp detail — high-speed photography style, 1/8000s shutter freeze. You can see individual page fibres tearing, the serial numbers on each banknote, the hallmark stamps on each gold bar.
+
+Dramatic but controlled — the explosion follows a roughly spherical pattern, not chaotic. The black background remains pure and clean. Lighting is the same soft studio setup as the assembled shot but with additional rim lighting to make edges of flying objects pop.
+
+Photorealistic rendering, 16:9 aspect ratio, high-speed product photography meets luxury advertising. Shot on Phase One IQ4 150MP, focus-stacked composite for sharpness across all flying elements. Pure black #000000 background, no gradient, no vignette. Ultra-sharp detail, 8K quality.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Panel C -->
+      <div class="prompt-panel" data-panel="c">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-label">Prompt C &mdash; Video Transition</span>
+            <button class="copy-btn" data-copy="c">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              <span>Copy</span>
+            </button>
+          </div>
+          <div class="card-body">
+            <div class="prompt-text" id="prompt-c">START FRAME: A curated stack of premium property investment books with a miniature luxury house model sitting on top, beside a tablet showing analytics and a brass key. Clean black background, soft studio lighting, editorial product photography. Everything still and pristine.
+
+END FRAME: A dramatic freeze-frame explosion of wealth — hundreds of £50 notes, gold bars, gold coins, property deeds stamped "SOLD", and brass keys erupting outward from the centre. The books are mid-shatter, pages transforming into banknotes. The house model is cracking open with golden light and coins spilling from inside. High-speed photography freeze on black background.
+
+TRANSITION: The scene begins still and quiet — the books, house model, tablet, and key sit perfectly arranged. Hold for 1 second.
+
+Then a subtle golden glow begins to emanate from inside the miniature house model, pulsing gently. The glow intensifies over 0.5 seconds — light leaking from the windows and cracks.
+
+BANG — the transformation erupts. The house model cracks open and gold coins burst from within. Simultaneously, the book pages begin ripping upward, each page morphing mid-air from printed text into the pattern of a £50 note. The book covers blow apart. Banknotes multiply and fan outward in every direction. Gold bars tumble into frame from above. Gold coins shower down like confetti. Property deeds with red "SOLD" stamps spiral outward. Brass keys fly from the centre.
+
+The explosion expands over 2 seconds in ultra-smooth slow motion — every note, every coin, every gold bar rendered in crisp detail as it flies. Individual page fibres visible as they tear. Banknote holograms shimmer as they rotate. Gold surfaces catch and reflect studio light.
+
+The motion peaks, then begins to slow further — the final 1 second is an extreme slow-motion hold as the last elements drift outward, creating the freeze-frame composition. Everything settles into the final exploded arrangement. Hold the final frame for 1 second.
+
+STYLE: Photorealistic, black background throughout, consistent studio lighting with added rim light on flying objects. No camera movement — locked-off tripod shot. The only motion is the transformation from education to wealth. Cinematic, aspirational, luxury advertising feel. Think Rolex commercial meets property investment brand.
+
+DURATION: 5-6 seconds total.
+ASPECT RATIO: 16:9
+QUALITY: High fidelity, smooth 24fps minimum (60fps preferred for slow-motion detail), no artifacts.
+
+VARIATIONS:
+— Reverse version: Start with the wealth explosion frozen in space, then everything pulls inward and assembles back into the neat book stack and house model (powerful "it all starts with education" narrative)
+— Gold-focus version: Remove the banknotes entirely, make it purely gold bars, gold coins, and golden light — more premium, less "cash grab" feel
+— Looping version: Education → glow → explosion → slow reverse → education → repeat</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tips">
+      <div class="tips-title">Recommended Settings</div>
+      <div class="tips-text">
+        <strong>Image generator:</strong> 16:9 aspect ratio, highest quality/resolution available<br>
+        <strong>Video model:</strong> 16:9, 5-6 seconds, highest quality, 60fps if available for slow-motion<br>
+        <strong>Tip:</strong> Generate the education shot first (Prompt A), then reference it when generating
+        the explosion (Prompt B) so the book covers, house model, and key match exactly. For the video, upload Prompt A as start frame and Prompt B as end frame.<br>
+        <strong>Narrative tip:</strong> The reverse version (wealth assembling back into education) often performs better on social — it tells the story "this is where it all begins" which resonates with aspiring investors.
+      </div>
+    </div>
+
+    <div class="footer">Built with Scroll-Stop Prompter</div>
+  </div>
+
+  <script>
+    const tabs = document.querySelectorAll('.tab');
+    const panels = document.querySelectorAll('.prompt-panel');
+
+    function switchTab(id) {
+      tabs.forEach(t => { t.classList.remove('active'); t.setAttribute('aria-selected', 'false'); });
+      panels.forEach(p => p.classList.remove('active'));
+      const tab = document.querySelector(`.tab[data-tab="${id}"]`);
+      const panel = document.querySelector(`.prompt-panel[data-panel="${id}"]`);
+      if (tab) { tab.classList.add('active'); tab.setAttribute('aria-selected', 'true'); }
+      if (panel) panel.classList.add('active');
+    }
+
+    tabs.forEach(tab => { tab.addEventListener('click', () => switchTab(tab.dataset.tab)); });
+
+    document.addEventListener('keydown', e => {
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+      if (e.key === '1') switchTab('a');
+      if (e.key === '2') switchTab('b');
+      if (e.key === '3') switchTab('c');
+    });
+
+    document.querySelectorAll('.copy-btn').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const id = btn.dataset.copy;
+        const text = document.getElementById(`prompt-${id}`).innerText;
+        try {
+          await navigator.clipboard.writeText(text);
+          const label = btn.querySelector('span');
+          const orig = label.textContent;
+          label.textContent = 'Copied!';
+          btn.classList.add('copied');
+          fireConfetti(btn);
+          setTimeout(() => { label.textContent = orig; btn.classList.remove('copied'); }, 2000);
+        } catch {}
+      });
+    });
+
+    const canvas = document.getElementById('confetti-canvas');
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+    let animating = false;
+
+    function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    function fireConfetti(origin) {
+      const rect = origin.getBoundingClientRect();
+      const cx = rect.left + rect.width / 2;
+      const cy = rect.top + rect.height / 2;
+      const colors = ['#C9A84C', '#E8D48B', '#A68A3E', '#D4B85A', '#F5E6A3', '#8B7332', '#ffffff'];
+      for (let i = 0; i < 60; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const speed = 4 + Math.random() * 8;
+        particles.push({
+          x: cx, y: cy,
+          vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed - 4,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          size: 4 + Math.random() * 4, life: 1,
+          decay: 0.015 + Math.random() * 0.015,
+          rotation: Math.random() * 360, rotSpeed: (Math.random() - 0.5) * 12,
+          shape: Math.random() > 0.5 ? 'rect' : 'circle'
+        });
+      }
+      if (!animating) { animating = true; animateConfetti(); }
+    }
+
+    function animateConfetti() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      particles.forEach((p, i) => {
+        p.x += p.vx; p.y += p.vy; p.vy += 0.18; p.vx *= 0.99;
+        p.life -= p.decay; p.rotation += p.rotSpeed;
+        if (p.life <= 0) { particles.splice(i, 1); return; }
+        ctx.save(); ctx.translate(p.x, p.y);
+        ctx.rotate((p.rotation * Math.PI) / 180);
+        ctx.globalAlpha = p.life; ctx.fillStyle = p.color;
+        if (p.shape === 'rect') { ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.6); }
+        else { ctx.beginPath(); ctx.arc(0, 0, p.size / 2, 0, Math.PI * 2); ctx.fill(); }
+        ctx.restore();
+      });
+      if (particles.length > 0) { requestAnimationFrame(animateConfetti); }
+      else { animating = false; ctx.clearRect(0, 0, canvas.width, canvas.height); }
+    }
+  </script>
+</body>
+</html>
